@@ -1,6 +1,6 @@
 # tagtree
 
-Haskell library for representing hierarchical tags, such as `foo/bar/qux` and and searching them based on path patterns.
+Haskell library for representing hierarchical tags, such as `foo/bar/qux`, as well as a tree of such tags and then searching them based on path patterns.
 
 ## Developing
 

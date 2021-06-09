@@ -1,7 +1,7 @@
 cabal-version:      2.4
 name:               tagtree
 version:            0.1.0.0
-license:            AGPL-3.0-only
+license:            BSD-3-Clause
 copyright:          2021 Sridhar Ratnakumar
 maintainer:         srid@srid.ca
 author:             Sridhar Ratnakumar
@@ -9,11 +9,13 @@ category:           Web
 
 -- TODO: Before hackage release.
 -- A short (one-line) description of the package.
--- synopsis:
+synopsis: Hierarchical Tags & Tag Trees
 
 -- A longer description of the package.
--- description:
-
+description: |
+  Haskell library for representing hierarchical tags, such as `foo/bar/qux`, as
+  well as a tree of such tags and then searching them based on path patterns.
+  
 -- A URL where users can report bugs.
 -- bug-reports:
 

@@ -4,19 +4,24 @@
 {-# LANGUAGE GeneralisedNewtypeDeriving #-}
 
 module Data.TagTree
-  ( Tag (..),
+  ( -- * Types
+    Tag (..),
     TagPattern (unTagPattern),
     TagNode (..),
-    Query (..),
-    mkDefaultTagQuery,
+
+    -- * Create Tags
+    constructTag,
+
+    -- * Creating Tag Trees
+    tagTree,
+
+    -- * Searching Tags
     mkTagPattern,
     mkTagPatternFromTag,
     tagMatch,
-    matchTagQuery,
-    matchTagQueryMulti,
-    tagTree,
+
+    -- * Working with Tag Trees
     foldTagTree,
-    constructTag,
   )
 where
 
@@ -29,7 +34,6 @@ import Data.Tree (Forest)
 import System.FilePattern (FilePattern, (?==))
 import qualified Text.Megaparsec as M
 import qualified Text.Megaparsec.Char as M
-import Text.Show (Show (show))
 
 -- | A hierarchical tag
 --
@@ -75,45 +79,9 @@ mkTagPatternFromTag :: Tag -> TagPattern
 mkTagPatternFromTag (Tag t) =
   TagPattern $ toString t
 
-data Query
-  = Query_And (NonEmpty TagPattern)
-  | Query_Or (NonEmpty TagPattern)
-  | Query_All
-  deriving (Eq, Ord, Generic)
-  deriving anyclass
-    ( ToJSON,
-      FromJSON
-    )
-
-mkDefaultTagQuery :: [TagPattern] -> Query
-mkDefaultTagQuery = maybe Query_All Query_Or . nonEmpty
-
-instance Show Query where
-  show = \case
-    Query_And (toList -> pats) ->
-      toString $ T.intercalate ", and " (fmap (toText . unTagPattern) pats)
-    Query_Or (toList -> pats) ->
-      toString $ T.intercalate ", or " (fmap (toText . unTagPattern) pats)
-    Query_All ->
-      "No particular tag"
-
 tagMatch :: TagPattern -> Tag -> Bool
 tagMatch (TagPattern pat) (Tag tag) =
   pat ?== toString tag
-
--- TODO: Use step from https://hackage.haskell.org/package/filepattern-0.1.2/docs/System-FilePattern.html#v:step
--- for efficient matching.
-matchTagQuery :: Tag -> Query -> Bool
-matchTagQuery t = \case
-  Query_And pats -> all (`tagMatch` t) pats
-  Query_Or pats -> any (`tagMatch` t) pats
-  Query_All -> True
-
-matchTagQueryMulti :: [Tag] -> Query -> Bool
-matchTagQueryMulti tags = \case
-  Query_And pats -> any (\t -> all (`tagMatch` t) pats) tags
-  Query_Or pats -> any (\t -> any (`tagMatch` t) pats) tags
-  Query_All -> True
 
 -----------
 -- Tag Tree
