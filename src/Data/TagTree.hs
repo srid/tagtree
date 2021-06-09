@@ -26,7 +26,7 @@ module Data.TagTree
 where
 
 import Control.Monad.Combinators.NonEmpty (sepBy1)
-import Data.Aeson (FromJSON, ToJSON)
+import Data.Aeson (FromJSON, ToJSON, ToJSONKey)
 import qualified Data.Map.Strict as Map
 import Data.TagTree.PathTree (annotatePathsWith, foldSingleParentsWith, mkTreeFromPaths)
 import qualified Data.Text as T
@@ -42,7 +42,8 @@ newtype Tag = Tag {unTag :: Text}
   deriving (Eq, Ord, Show, Generic)
   deriving newtype
     ( ToJSON,
-      FromJSON
+      FromJSON,
+      ToJSONKey
     )
 
 --------------

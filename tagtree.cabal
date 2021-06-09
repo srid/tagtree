@@ -9,13 +9,14 @@ category:           Web
 
 -- TODO: Before hackage release.
 -- A short (one-line) description of the package.
-synopsis: Hierarchical Tags & Tag Trees
+synopsis:           Hierarchical Tags & Tag Trees
 
 -- A longer description of the package.
-description: |
+description:
+  |
   Haskell library for representing hierarchical tags, such as `foo/bar/qux`, as
   well as a tree of such tags and then searching them based on path patterns.
-  
+
 -- A URL where users can report bugs.
 -- bug-reports:
 
