@@ -1,5 +1,5 @@
 cabal-version:      2.4
-name:               haskell-template
+name:               tagtree
 version:            0.1.0.0
 license:            AGPL-3.0-only
 copyright:          2021 Sridhar Ratnakumar
@@ -21,29 +21,17 @@ extra-source-files:
   LICENSE
   README.md
 
-executable haskell-template
+library
   build-depends:
     , aeson
-    , async
     , base
     , bytestring
     , containers
-    , data-default
-    , directory
-    , filepath
-    , lens
+    , filepattern
     , megaparsec
-    , monad-logger
-    , mtl
-    , neat-interpolation
-    , profunctors
+    , parser-combinators
     , relude
-    , shower
-    , tagged
     , text
-    , time
-    , unliftio
-    , with-utf8
 
   mixins:
     base hiding (Prelude),
@@ -53,7 +41,12 @@ executable haskell-template
   ghc-options:
     -Wall -Wincomplete-record-updates -Wincomplete-uni-patterns
 
+  exposed-modules:
+    Data.TagTree
+    Data.TagTree.PathTree
+
   default-extensions:
+    DerivingStrategies
     FlexibleContexts
     FlexibleInstances
     KindSignatures
