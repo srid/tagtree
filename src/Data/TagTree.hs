@@ -28,6 +28,7 @@ where
 
 import Control.Monad.Combinators.NonEmpty (sepBy1)
 import Data.Aeson (FromJSON, ToJSON, ToJSONKey)
+import Data.Default (Default (def))
 import qualified Data.Map.Strict as Map
 import Data.TagTree.PathTree (annotatePathsWith, foldSingleParentsWith, mkTreeFromPaths)
 import qualified Data.Text as T
@@ -116,7 +117,7 @@ constructTag (fmap unTagNode . toList -> nodes) =
   Tag $ T.intercalate "/" nodes
 
 -- | Construct the tree from a list of hierarchical tags
-tagTree :: (Eq a, Monoid a) => Map Tag a -> Forest (TagNode, a)
+tagTree :: (Eq a, Default a) => Map Tag a -> Forest (TagNode, a)
 tagTree tags =
   fmap (annotatePathsWith $ countFor tags) $
     mkTreeFromPaths $
@@ -124,15 +125,15 @@ tagTree tags =
         <$> Map.keys tags
   where
     countFor tags' path =
-      fromMaybe mempty $ Map.lookup (constructTag path) tags'
+      fromMaybe def $ Map.lookup (constructTag path) tags'
 
-foldTagTree :: (Eq a, Monoid a) => Forest (TagNode, a) -> Forest (NonEmpty TagNode, a)
+foldTagTree :: (Eq a, Default a) => Forest (TagNode, a) -> Forest (NonEmpty TagNode, a)
 foldTagTree tree =
   foldSingleParentsWith foldNodes <$> fmap (fmap (first (:| []))) tree
   where
-    foldNodes (parent, x) (child, count) = do
-      guard (x == mempty)
-      Just (parent <> child, count)
+    foldNodes (parent, x) (child, y) = do
+      guard (x == def)
+      Just (parent <> child, y)
 
 type Parser a = M.Parsec Void Text a
 
