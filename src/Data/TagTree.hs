@@ -116,7 +116,7 @@ constructTag (fmap unTagNode . toList -> nodes) =
   Tag $ T.intercalate "/" nodes
 
 -- | Construct the tree from a list of hierarchical tags
-tagTree :: ann ~ Natural => Map Tag ann -> Forest (TagNode, ann)
+tagTree :: (Eq a, Monoid a) => Map Tag a -> Forest (TagNode, a)
 tagTree tags =
   fmap (annotatePathsWith $ countFor tags) $
     mkTreeFromPaths $
@@ -124,14 +124,15 @@ tagTree tags =
         <$> Map.keys tags
   where
     countFor tags' path =
-      fromMaybe 0 $ Map.lookup (constructTag path) tags'
+      fromMaybe mempty $ Map.lookup (constructTag path) tags'
 
-foldTagTree :: ann ~ Natural => Forest (TagNode, ann) -> Forest (NonEmpty TagNode, ann)
+foldTagTree :: (Eq a, Monoid a) => Forest (TagNode, a) -> Forest (NonEmpty TagNode, a)
 foldTagTree tree =
   foldSingleParentsWith foldNodes <$> fmap (fmap (first (:| []))) tree
   where
-    foldNodes (parent, 0) (child, count) = Just (parent <> child, count)
-    foldNodes _ _ = Nothing
+    foldNodes (parent, x) (child, count) = do
+      guard (x == mempty)
+      Just (parent <> child, count)
 
 type Parser a = M.Parsec Void Text a
 
