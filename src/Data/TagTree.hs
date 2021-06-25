@@ -11,6 +11,7 @@ module Data.TagTree
 
     -- * Create Tags
     constructTag,
+    deconstructTag,
 
     -- * Creating Tag Trees
     tagTree,
