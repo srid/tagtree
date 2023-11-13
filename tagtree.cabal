@@ -1,6 +1,6 @@
 cabal-version:      2.4
 name:               tagtree
-version:            0.1.0.0
+version:            0.1.0.1
 license:            BSD-3-Clause
 copyright:          2021 Sridhar Ratnakumar
 maintainer:         srid@srid.ca
@@ -25,7 +25,7 @@ extra-source-files:
 library
   build-depends:
     , aeson
-    , base >= 4.13.0.0 && <=4.17.0.0
+    , base >= 4.13.0.0 && <=4.99.0.0
     , bytestring
     , containers
     , data-default
