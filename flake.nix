@@ -1,46 +1,51 @@
 {
-  description = "tagtree's description";
   inputs = {
-    flake-utils.url = "github:numtide/flake-utils";
-    flake-compat = {
-      url = "github:edolstra/flake-compat";
-      flake = false;
-    };
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    haskell-flake.url = "github:srid/haskell-flake";
+    treefmt-nix.url = "github:numtide/treefmt-nix";
+    flake-root.url = "github:srid/flake-root";
+    systems.url = "github:nix-systems/default";
   };
-  outputs = inputs@{ self, nixpkgs, flake-utils, ... }:
-    flake-utils.lib.eachSystem [ "x86_64-linux" "x86_64-darwin" ] (system:
-      let
-        overlays = [ ];
-        pkgs =
-          import nixpkgs { inherit system overlays; config.allowBroken = true; };
-        project = returnShellEnv:
-          pkgs.haskellPackages.developPackage {
-            inherit returnShellEnv;
-            name = "tagtree";
-            root = ./.;
-            withHoogle = false;
-            overrides = self: super: with pkgs.haskell.lib; {
-              # Use callCabal2nix to override Haskell dependencies here
-              # cf. https://tek.brick.do/K3VXJd8mEKO7
-            };
-            modifier = drv:
-              pkgs.haskell.lib.addBuildTools drv (with pkgs.haskellPackages;
-              [
-                # Specify your build/dev dependencies here. 
-                cabal-fmt
-                cabal-install
-                ghcid
-                haskell-language-server
-                ormolu
-                pkgs.nixpkgs-fmt
-              ]);
-          };
-      in
-      {
-        # Used by `nix build` & `nix run` (prod exe)
-        defaultPackage = project false;
 
-        # Used by `nix develop` (dev shell)
-        devShell = project true;
-      });
+  outputs = inputs@{ self, nixpkgs, flake-parts, ... }:
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = import inputs.systems;
+      imports = [
+        inputs.haskell-flake.flakeModule
+        inputs.flake-root.flakeModule
+        inputs.treefmt-nix.flakeModule
+      ];
+      perSystem = { self', config, pkgs, ... }: {
+        haskellProjects.default = {
+          autoWire = [ "packages" "checks" ];
+        };
+
+        treefmt.config = {
+          inherit (config.flake-root) projectRootFile;
+          package = pkgs.treefmt;
+
+          programs.ormolu.enable = true;
+          programs.nixpkgs-fmt.enable = true;
+          programs.cabal-fmt.enable = true;
+
+          # We use fourmolu
+          programs.ormolu.package = pkgs.haskellPackages.fourmolu;
+          settings.formatter.ormolu = {
+            options = [
+              "--ghc-opt"
+              "-XImportQualifiedPost"
+            ];
+          };
+        };
+
+        devShells.default = pkgs.mkShell {
+          inputsFrom = [
+            config.haskellProjects.default.outputs.devShell
+            config.treefmt.build.devShell
+          ];
+        };
+
+      };
+    };
 }
